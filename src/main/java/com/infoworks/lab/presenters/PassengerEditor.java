@@ -5,6 +5,7 @@ import com.infoworks.lab.domain.entities.Gender;
 import com.it.soul.lab.sql.query.models.Property;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
@@ -18,12 +19,21 @@ public class PassengerEditor extends EmbeddedBeanEditor {
     }
 
     @Override
+    protected boolean shouldSaveAutofocus() {
+        return false;
+    }
+
+    @Override
     protected HasValue getValueField(Property prop) {
         if (prop.getKey().equals("sex")){
             ComboBox<String> comboBox = new ComboBox<>(prop.getKey());
             comboBox.setItems(Arrays.stream(Gender.values()).map(gender -> gender.name()));
             return comboBox;
-        }else{
+        } else if (prop.getKey().equals("name")) {
+            TextField field = (TextField) super.getValueField(prop);
+            field.setAutofocus(true);
+            return field;
+        } else{
             return super.getValueField(prop);
         }
     }
@@ -37,18 +47,18 @@ public class PassengerEditor extends EmbeddedBeanEditor {
         }
     }
 
-    public static class GenderConverter implements Converter<String, Gender>{
+    public static class GenderConverter implements Converter<String, String>{
 
         @Override
-        public Result<Gender> convertToModel(String s, ValueContext valueContext) {
+        public Result<String> convertToModel(String s, ValueContext valueContext) {
             if (s == null || s.isEmpty()) s = Gender.NONE.name();
-            return Result.ok(Gender.valueOf(s));
+            return Result.ok(s);
         }
 
         @Override
-        public String convertToPresentation(Gender gender, ValueContext valueContext) {
+        public String convertToPresentation(String gender, ValueContext valueContext) {
             if (gender == null) return Gender.NONE.name();
-            return gender.name();
+            return gender;
         }
     }
 }

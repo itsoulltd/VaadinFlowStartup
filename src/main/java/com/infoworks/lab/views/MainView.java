@@ -2,11 +2,14 @@ package com.infoworks.lab.views;
 
 import com.infoworks.lab.components.crud.Configurator;
 import com.infoworks.lab.components.crud.Crud;
-import com.infoworks.lab.components.crud.components.grid.CachedSource;
-import com.infoworks.lab.components.crud.components.grid.GridDataSource;
+import com.infoworks.lab.components.crud.components.datasource.DefaultDataSource;
+import com.infoworks.lab.components.crud.components.datasource.GridDataSource;
 import com.infoworks.lab.components.crud.components.utils.EditorDisplayType;
+import com.infoworks.lab.components.db.source.JsqlDataSource;
+import com.infoworks.lab.components.db.source.SqlDataSource;
 import com.infoworks.lab.domain.entities.Gender;
 import com.infoworks.lab.domain.entities.Passenger;
+import com.infoworks.lab.jsql.ExecutorType;
 import com.infoworks.lab.presenters.PassengerEditor;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
@@ -30,24 +33,23 @@ public class MainView extends VerticalLayout {
 
     public MainView() {
 
-        GridDataSource source = new CachedSource();
+        //In-Memory DataSource:
+        GridDataSource source = new DefaultDataSource();
         getPassengers().stream().forEach(passenger -> source.save(passenger));
+
+        //Fetching Data From Database:
+        //GridDataSource source = JsqlDataSource.createDataSource(SqlDataSource.class, ExecutorType.SQL);
 
         Configurator configurator = new Configurator(Passenger.class)
                 .setDisplayType(EditorDisplayType.COMBINED)
                 .setDataSource(source)
                 .setEditor(PassengerEditor.class)
-                .setDialog(PassengerEditor.class);
+                .setDialog(PassengerEditor.class)
+                .setGridPageSize(8);
 
         Crud crud = new Crud(configurator);
-        configureGrid(crud);
         add(crud);
 
-    }
-
-    private void configureGrid(Crud curd){
-        Grid<Passenger> grid = curd.getGrid();
-        grid.setColumns(curd.propertyKeys(getPassengers().get(0)));
     }
 
     private List<Passenger> getPassengers() {
