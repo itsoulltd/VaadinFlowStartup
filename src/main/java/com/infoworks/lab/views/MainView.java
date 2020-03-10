@@ -33,7 +33,7 @@ public class MainView extends VerticalLayout {
     public MainView() {
 
         //Create DataSource:
-        GridDataSource source = createDataSource(false);
+        GridDataSource source = createDataSource(true);
 
         Configurator configurator = new Configurator(Passenger.class)
                 .setDisplayType(EditorDisplayType.COMBINED)
