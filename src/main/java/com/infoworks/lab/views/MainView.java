@@ -5,8 +5,11 @@ import com.infoworks.lab.components.crud.Crud;
 import com.infoworks.lab.components.crud.components.datasource.DefaultDataSource;
 import com.infoworks.lab.components.crud.components.datasource.GridDataSource;
 import com.infoworks.lab.components.crud.components.utils.EditorDisplayType;
+import com.infoworks.lab.components.db.source.JsqlDataSource;
+import com.infoworks.lab.components.db.source.SqlDataSource;
 import com.infoworks.lab.domain.entities.Gender;
 import com.infoworks.lab.domain.entities.Passenger;
+import com.infoworks.lab.jsql.ExecutorType;
 import com.infoworks.lab.presenters.PassengerEditor;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -29,12 +32,8 @@ public class MainView extends VerticalLayout {
 
     public MainView() {
 
-        //In-Memory DataSource:
-        GridDataSource source = new DefaultDataSource();
-        getPassengers().stream().forEach(passenger -> source.save(passenger));
-
-        //Fetching Data From Database:
-        //GridDataSource source = JsqlDataSource.createDataSource(SqlDataSource.class, ExecutorType.SQL);
+        //Create DataSource:
+        GridDataSource source = createDataSource(false);
 
         Configurator configurator = new Configurator(Passenger.class)
                 .setDisplayType(EditorDisplayType.COMBINED)
@@ -46,6 +45,20 @@ public class MainView extends VerticalLayout {
         Crud crud = new Crud(configurator);
         add(crud);
 
+    }
+
+    private GridDataSource createDataSource(boolean inmemory){
+        if (inmemory){
+            //In-Memory DataSource:
+            GridDataSource source = new DefaultDataSource();
+            getPassengers().stream().forEach(passenger -> source.save(passenger));
+            return source;
+        }else{
+            //Fetching Data From Database:
+            DatabaseBootstrap.createTables();
+            GridDataSource source = JsqlDataSource.createDataSource(SqlDataSource.class, ExecutorType.SQL);
+            return source;
+        }
     }
 
     private List<Passenger> getPassengers() {
